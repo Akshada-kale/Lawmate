@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LawMate – Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.spec-chip{display:inline-flex;align-items:center;padding:5px 14px;background:#fff7ed;color:#f59e0b;border:1.5px solid #fde68a;border-radius:20px;font-size:13px;font-weight:600;margin:4px}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Lawyer Dashboard</span>
+    <div class="topbar-right">
+     <!-- <div class="search-bar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search...<span class="search-kbd">⌘K</span></div>
+      <button class="notif-btn"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>-->
+      <div class="user-badge"><div class="avatar"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span id="topbarName">...</span></div>
+    </div>
+  </header>
+  <div class="page-content">
+    <div class="profile-wrapper">
+      <div class="profile-page-top">
+        <div><h1>My Profile</h1><p>Manage your professional information</p></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn-edit" id="editBtn" onclick="toggleEdit()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Profile
+          </button>
+          <button class="btn-save" id="saveBtn" style="display:none;padding:9px 18px;border-radius:9px;border:none;background:#0f172a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif" onclick="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-identity">
+          <div class="p-avatar"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <div><div class="p-name" id="pName">—</div><div class="p-city" id="pFirm">—</div></div>
+        </div>
+        <div class="fields-grid">
+          <div><label class="f-label">Full Name</label><input class="f-input" id="f-name" readonly></div>
+          <div><label class="f-label">Email</label><input class="f-input" id="f-email" readonly></div>
+          <div><label class="f-label">Phone</label><input class="f-input" id="f-phone" readonly></div>
+          <div><label class="f-label">Bar Council ID</label><input class="f-input" id="f-bar" readonly></div>
+          <div><label class="f-label">Firm Name</label><input class="f-input" id="f-firm" readonly></div>
+          <div><label class="f-label">Experience</label><input class="f-input" id="f-exp" readonly></div>
+          <div class="full-w"><label class="f-label">Office Address</label><input class="f-input" id="f-addr" readonly></div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="f-label" style="margin-bottom:8px">Specializations</div>
+          <div id="specChips"></div>
+        </div>
+      </div>
+      <a href="/login.html" class="logout-link" onclick="Auth.clear()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+      </a>
+    </div>
+  </div>
+</div>
+<script src="/js/api.js"></script>
+<script src="_sidebar.js"></script>
+<script>
+async function loadProfile() {
+  const user = Auth.getUser();
+  document.getElementById('topbarName').textContent = user.full_name;
+  try {
+    const { user: u } = await API.me();
+    document.getElementById('pName').textContent  = u.full_name;
+    document.getElementById('pFirm').textContent  = u.firm_name || '—';
+    document.getElementById('f-name').value  = u.full_name || '';
+    document.getElementById('f-email').value = u.email || '';
+    document.getElementById('f-phone').value = u.phone || '';
+    document.getElementById('f-bar').value   = u.bar_reg_id || '';
+    document.getElementById('f-firm').value  = u.firm_name || '';
+    document.getElementById('f-exp').value   = u.experience || '';
+    document.getElementById('f-addr').value  = u.office_address || '';
+    const specs = u.specializations || [];
+    document.getElementById('specChips').innerHTML = specs.length
+      ? specs.map(s=>`<span class="spec-chip">${s}</span>`).join('')
+      : '<span style="color:#9ca3af;font-size:14px">—</span>';
+  } catch(err) { console.error(err); }
+}
+
+function toggleEdit() {
+  ['f-name','f-phone','f-firm','f-exp','f-addr'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly=false; el.style.background='#fff';
+  });
+  document.getElementById('editBtn').style.display = 'none';
+  document.getElementById('saveBtn').style.display = 'inline-flex';
+}
+
+async function saveProfile() {
+  try {
+    const body = {
+      full_name:      document.getElementById('f-name').value,
+      phone:          document.getElementById('f-phone').value,
+      firm_name:      document.getElementById('f-firm').value,
+      experience:     document.getElementById('f-exp').value,
+      office_address: document.getElementById('f-addr').value,
+    };
+    const { user } = await API.updateProfile(body);
+    Auth.setSession(Auth.getToken(), { ...Auth.getUser(), full_name: user.full_name });
+    showToast('Profile updated!');
+    document.getElementById('pName').textContent = user.full_name;
+    document.getElementById('pFirm').textContent = user.firm_name || '—';
+    ['f-name','f-phone','f-firm','f-exp','f-addr'].forEach(id => {
+      const el=document.getElementById(id); el.readOnly=true; el.style.background='#fafafa';
+    });
+    document.getElementById('editBtn').style.display = 'inline-flex';
+    document.getElementById('saveBtn').style.display = 'none';
+  } catch(err) { showToast(err.message,'error'); }
+}
+
+renderSidebar('profile');
+loadProfile();
+</script>
+</body>
+</html>

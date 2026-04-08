@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LawMate – Fee Records</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;font-weight:600;color:#9ca3af;padding:10px 14px;border-bottom:1px solid #f3f4f6;text-transform:uppercase;letter-spacing:.04em}
+td{padding:14px;border-bottom:1px solid #f9fafb;font-size:14px;color:#374151}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:480px}
+.modal h2{font-family:'Playfair Display',serif;font-size:22px;color:#0f172a;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
+.form-group input,.form-group select{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:#f59e0b}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-primary{padding:10px 20px;border:none;border-radius:9px;background:#0f172a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Lawyer Dashboard</span>
+    <div class="topbar-right">
+     <!-- <div class="search-bar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search...<span class="search-kbd">⌘K</span></div>
+      <button class="notif-btn"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>-->
+      <div class="user-badge"><div class="avatar"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span id="topbarName">...</span></div>
+    </div>
+  </header>
+  <div class="page-content">
+    <div class="page-header"><h1>Fee Records</h1><p>Track all client payments</p></div>
+    <!-- STATS -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+      <div class="stat-card"><div><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-total">—</div></div><div class="stat-icon si-blue"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+      <div class="stat-card"><div><div class="stat-label">Total Received</div><div class="stat-val" id="s-received" style="color:#16a34a">—</div></div><div class="stat-icon si-green"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
+      <div class="stat-card"><div><div class="stat-label">Pending Fees</div><div class="stat-val" id="s-pending" style="color:#dc2626">—</div></div><div class="stat-icon si-red"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:16px">
+      <button onclick="openModal()" style="padding:9px 18px;border-radius:9px;border:none;background:#0f172a;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">+ Add Payment Record</button>
+    </div>
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+      <table>
+        <thead><tr><th>Case</th><th>Client</th><th>Total Fee</th><th>Paid</th><th>Pending</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="feesBody"><tr><td colspan="7" style="color:#9ca3af;padding:24px">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <h2>Add Payment Record</h2>
+    <div class="form-group"><label>Case *</label><select id="m-case"><option value="">— Select Case —</option></select></div>
+    <div class="form-group"><label>Client *</label><select id="m-client"><option value="">— Select Client —</option></select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Total Fee (₹) *</label><input type="number" id="m-total" placeholder="150000"></div>
+      <div class="form-group"><label>Paid Amount (₹)</label><input type="number" id="m-paid" placeholder="75000"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="addFeeRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="_sidebar.js"></script>
+<script>
+let allFees = [];
+
+const statusBadge = {
+  paid:    `<span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">Paid</span>`,
+  partial: `<span style="background:#fff7ed;color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">Partial</span>`,
+  pending: `<span style="background:#fef2f2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">Pending</span>`,
+};
+
+function feeRowHTML(f) {
+  const pending = Number(f.total_fee) - Number(f.paid_amount);
+  return `<tr>
+    <td style="font-weight:600;color:#0f172a">${f.case?.case_number||'—'}</td>
+    <td>${f.client?.full_name||'—'}</td>
+    <td>${formatMoney(f.total_fee)}</td>
+    <td style="color:#16a34a;font-weight:600">${formatMoney(f.paid_amount)}</td>
+    <td style="color:${pending>0?'#dc2626':'#16a34a'};font-weight:600">${formatMoney(pending)}</td>
+    <td>${statusBadge[f.status]||''}</td>
+    <td>
+      <button onclick="updatePaid('${f.id}','${f.total_fee}','${f.paid_amount}')" style="padding:5px 10px;border:1.5px solid #e5e7eb;border-radius:6px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;color:#374151">Update</button>
+    </td>
+  </tr>`;
+}
+
+function updateStats() {
+  document.getElementById('s-total').textContent    = formatMoney(allFees.reduce((s,f)=>s+Number(f.total_fee),0));
+  document.getElementById('s-received').textContent = formatMoney(allFees.reduce((s,f)=>s+Number(f.paid_amount),0));
+  document.getElementById('s-pending').textContent  = formatMoney(allFees.reduce((s,f)=>s+(Number(f.total_fee)-Number(f.paid_amount)),0));
+}
+
+async function loadFees() {
+  document.getElementById('topbarName').textContent = Auth.getUser().full_name;
+  try {
+    const [feesRes, casesRes, clientsRes] = await Promise.all([API.getFees(), API.getCases(), API.getClients()]);
+    allFees = feesRes.fees;
+    updateStats();
+    document.getElementById('feesBody').innerHTML = allFees.length ? allFees.map(feeRowHTML).join('') : '<tr><td colspan="7" style="color:#9ca3af;padding:24px">No fee records yet.</td></tr>';
+    const cSel = document.getElementById('m-case');
+    casesRes.cases.forEach(c => { cSel.innerHTML += `<option value="${c.id}">${c.case_number} – ${c.title}</option>`; });
+    const pSel = document.getElementById('m-client');
+    clientsRes.clients.filter(c=>c.is_approved).forEach(c => { pSel.innerHTML += `<option value="${c.id}">${c.full_name}</option>`; });
+  } catch(err) { console.error(err); }
+}
+
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeOnOverlay(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+async function addFeeRecord() {
+  const body = {
+    case_id:    document.getElementById('m-case').value,
+    client_id:  document.getElementById('m-client').value,
+    total_fee:  Number(document.getElementById('m-total').value),
+    paid_amount:Number(document.getElementById('m-paid').value)||0,
+  };
+  if (!body.case_id||!body.client_id||!body.total_fee) { showToast('Case, client and total fee required','error'); return; }
+  try {
+    const { fee } = await API.createFee(body);
+    allFees.unshift(fee);
+    updateStats();
+    document.getElementById('feesBody').innerHTML = allFees.map(feeRowHTML).join('');
+    closeModal();
+    showToast('Fee record saved! Client notified.');
+  } catch(e) { showToast(e.message,'error'); }
+}
+
+async function updatePaid(id, totalFee, currentPaid) {
+  const newPaid = prompt(`Total: ₹${Number(totalFee).toLocaleString()}\nCurrent Paid: ₹${Number(currentPaid).toLocaleString()}\n\nEnter new paid amount:`);
+  if (newPaid === null) return;
+  try {
+    const { fee } = await API.updateFee(id, { paid_amount: Number(newPaid), total_fee: Number(totalFee) });
+    allFees = allFees.map(f=>f.id===id?{...f,...fee}:f);
+    updateStats();
+    document.getElementById('feesBody').innerHTML = allFees.map(feeRowHTML).join('');
+    showToast('Payment updated! Client notified.');
+  } catch(e) { showToast(e.message,'error'); }
+}
+
+renderSidebar('fees');
+loadFees();
+</script>
+</body>
+</html>

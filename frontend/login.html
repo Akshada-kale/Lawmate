@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LawMate – Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0f172a;--navy2:#1e293b;--orange:#f59e0b;--border:#e5e7eb;--text:#0f172a;--text-light:#6b7280;--bg:#f8f9fa}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex}
+
+/* LEFT PANEL */
+.left{width:50%;background:var(--navy);display:flex;flex-direction:column;justify-content:center;padding:60px;position:relative;overflow:hidden}
+.left::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.back-home{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;font-weight:500;margin-bottom:48px;position:relative;z-index:1;width:fit-content}
+.back-home:hover{color:#fff}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:40px;position:relative;z-index:1}
+.brand-icon{width:52px;height:52px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.brand-name{font-family:'Playfair Display',serif;font-size:28px;color:#fff;line-height:1.2}
+.brand-sub{font-size:13px;color:rgba(255,255,255,0.5)}
+.left h2{font-family:'Playfair Display',serif;font-size:32px;color:#fff;margin-bottom:14px;position:relative;z-index:1;line-height:1.3}
+.left p{font-size:15px;color:rgba(255,255,255,0.6);max-width:340px;line-height:1.7;position:relative;z-index:1}
+
+/* RIGHT PANEL */
+.right{width:50%;display:flex;align-items:center;justify-content:center;padding:60px 64px;background:#fff}
+.form-box{width:100%;max-width:400px}
+.form-box h1{font-family:'Playfair Display',serif;font-size:28px;color:var(--navy);margin-bottom:6px}
+.sub{font-size:14px;color:var(--text-light);margin-bottom:28px}
+
+/* TOGGLE */
+.toggle-row{display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:28px}
+.toggle-btn{flex:1;padding:10px;border:none;background:none;border-radius:8px;font-size:14px;font-weight:600;color:var(--text-light);cursor:pointer;font-family:'Inter',sans-serif;transition:.2s}
+.toggle-btn.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+
+/* FIELDS */
+.field{margin-bottom:18px}
+label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
+input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;color:var(--text)}
+input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:44px}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);padding:4px;display:flex;align-items:center}
+
+/* REMEMBER ROW */
+.row2{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;font-size:13px}
+.check-label{display:flex;align-items:center;gap:8px;color:#374151;cursor:pointer}
+.check-label input[type=checkbox]{width:auto;accent-color:var(--orange)}
+
+/* SUBMIT */
+.btn-submit{width:100%;padding:13px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-submit:hover:not(:disabled){background:var(--navy2)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed}
+
+/* MESSAGES */
+.error-msg{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none}
+.bottom{text-align:center;margin-top:20px;font-size:13px;color:var(--text-light)}
+.bottom a{color:var(--navy);font-weight:600;text-decoration:none}
+.bottom a:hover{text-decoration:underline}
+
+/* SPINNER */
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="left">
+  <a href="/index.html" class="back-home">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Home
+  </a>
+  <div class="brand">
+    <div class="brand-icon">
+      <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">LawMate</div>
+      
+    </div>
+  </div>
+  <h2>Welcome Back to Your Legal Portal</h2>
+  <p>Sign in to access your cases, hearings, documents and more  all in one place.</p>
+</div>
+
+<div class="right">
+  <div class="form-box">
+    <h1>Sign In</h1>
+    <p class="sub">Access your account below</p>
+
+    <div class="toggle-row">
+      <button class="toggle-btn active" id="clientBtn" onclick="setRole('client')">Client</button>
+      <button class="toggle-btn" id="lawyerBtn" onclick="setRole('lawyer')">Lawyer</button>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="field">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <div class="pw-wrap">
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        <button class="eye-btn" type="button" onclick="togglePw('password')">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="row2">
+      <label class="check-label">
+        <input type="checkbox" id="remember"> Remember me
+      </label>
+    </div>
+
+    <button class="btn-submit" id="loginBtn" onclick="doLogin()">
+      <span id="btnText">Sign In</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <div class="bottom">Don't have an account? <a href="/register.html">Create one</a></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+let currentRole = 'client';
+
+// Redirect if already logged in
+(function() {
+  if (Auth.isLoggedIn()) {
+    const u = Auth.getUser();
+    window.location.href = u.role === 'lawyer' ? '/lawyer/dashboard.html' : '/client/dashboard.html';
+  }
+})();
+
+function setRole(r) {
+  currentRole = r;
+  document.getElementById('clientBtn').classList.toggle('active', r === 'client');
+  document.getElementById('lawyerBtn').classList.toggle('active', r === 'lawyer');
+  document.getElementById('errorMsg').style.display = 'none';
+}
+
+function togglePw(id) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = on;
+  document.getElementById('btnText').style.display = on ? 'none' : 'inline';
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+
+  document.getElementById('errorMsg').style.display = 'none';
+
+  if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+  setLoading(true);
+  try {
+    const data = await API.login({ email, password });
+
+    if (data.user.role !== currentRole) {
+      showError(`This account is registered as a ${data.user.role}. Please select the correct tab.`);
+      setLoading(false);
+      return;
+    }
+
+    Auth.setSession(data.token, data.user);
+    window.location.href = data.user.role === 'lawyer' ? '/lawyer/dashboard.html' : '/client/dashboard.html';
+  } catch (err) {
+    showError(err.message || 'Login failed. Please check your credentials.');
+    setLoading(false);
+  }
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

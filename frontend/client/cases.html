@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Portal – My Cases</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Client Portal</span>
+    <div class="topbar-right">
+      <!-- ABOUT <div class="search-bar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search...<span class="search-kbd">⌘K</span></div>-->
+      <!--<button class="notif-btn"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>-->
+      <div class="user-badge"><div class="u-avatar"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span id="topbarName">...</span></div>
+    </div>
+  </header>
+  <div class="page-content">
+    <div class="page-header"><h1>My Cases</h1><p>View all your assigned cases and their progress</p></div>
+    <div class="cases-grid" id="casesGrid"><div style="color:#9ca3af;font-size:14px">Loading...</div></div>
+  </div>
+</div>
+<script src="/js/api.js"></script>
+<script src="_sidebar.js"></script>
+<script>
+const STAGES = ['Filed','Hearing','Evidence','Judgment','Closed'];
+
+function caseCardHTML(c) {
+  const steps = STAGES.map((s,i) => {
+    const done = i < (c.stage_step||1);
+    const circle = done
+      ? `<div class="step-circle step-done"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`
+      : `<div class="step-circle step-pending">${i+1}</div>`;
+    const line = i < STAGES.length-1
+      ? `<div class="prog-connector ${done?'done':'grey'}" style="margin-top:14px"></div>`
+      : '';
+    return `<div class="step-item">${circle}<div class="step-lbl ${done?'done':''}">${s}</div></div>${line}`;
+  }).join('');
+
+  const tags = [];
+  if (c.priority==='urgent') tags.push(`<span class="tag-urgent">⚠ Urgent</span>`);
+  tags.push(`<span class="tag-stage">${c.status?.charAt(0).toUpperCase()+c.status?.slice(1)||'Filed'}</span>`);
+
+  return `
+    <div class="case-card">
+      <div class="case-top">
+        <div><div class="case-num">${c.case_number}</div><div class="case-title">${c.title}</div></div>
+        <div class="case-tags">${tags.join('')}</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;margin:16px 0 14px">${steps}</div>
+      ${c.description_simple ? `<div class="case-desc">${c.description_simple}</div>` : ''}
+      <div class="case-meta">
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>${c.lawyer?.full_name||'—'}</span>
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${c.court||'—'}</span>
+        <span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${c.next_hearing ? formatDate(c.next_hearing) : formatDate(c.filing_date)}</span>
+      </div>
+    </div>`;
+}
+
+async function loadCases() {
+  const user = Auth.getUser();
+  document.getElementById('topbarName').textContent = user.full_name;
+  try {
+    const { cases } = await API.getCases();
+    const grid = document.getElementById('casesGrid');
+    grid.innerHTML = cases.length ? cases.map(caseCardHTML).join('') : '<div style="color:#9ca3af;font-size:14px;grid-column:1/-1;padding:20px 0">No cases assigned yet.</div>';
+  } catch (err) { console.error(err); }
+}
+
+renderSidebar('cases');
+loadCases();
+</script>
+</body>
+</html>

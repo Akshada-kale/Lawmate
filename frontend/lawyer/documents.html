@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LawMate – Documents</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.toolbar input,.toolbar select{padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif;outline:none;background:#fff}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--orange)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:480px}
+.modal h2{font-family:'Playfair Display',serif;font-size:22px;color:#0f172a;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
+.form-group input,.form-group select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--orange)}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-primary{padding:10px 20px;border:none;border-radius:9px;background:#0f172a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.drop-zone{border:2px dashed #e5e7eb;border-radius:10px;padding:30px;text-align:center;color:#9ca3af;font-size:14px;cursor:pointer;transition:border-color .2s}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--orange);color:var(--orange)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:12px;font-weight:600;color:#9ca3af;padding:10px 14px;border-bottom:1px solid #f3f4f6;text-transform:uppercase;letter-spacing:.04em}
+td{padding:14px;border-bottom:1px solid #f9fafb;font-size:14px;color:#374151}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Lawyer Dashboard</span>
+    <div class="topbar-right">
+      <!--<div class="search-bar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search...<span class="search-kbd">⌘K</span></div>
+      <button class="notif-btn"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>-->
+      <div class="user-badge"><div class="avatar"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span id="topbarName">...</span></div>
+    </div>
+  </header>
+  <div class="page-content">
+    <div class="page-header"><h1>Documents</h1><p>Upload and manage case documents</p></div>
+    <div class="toolbar">
+      <input id="searchInput" placeholder="Search documents..." oninput="filterDocs()" style="width:220px">
+      <select id="typeFilter" onchange="filterDocs()">
+        <option value="">All Types</option>
+        <option>Evidence</option><option>Petition</option><option>FIR</option><option>Court Order</option><option>Other</option>
+      </select>
+      <button onclick="openModal()" style="margin-left:auto;padding:9px 18px;border-radius:9px;border:none;background:#0f172a;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Upload Document</button>
+    </div>
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">
+      <table>
+        <thead><tr><th>Document</th><th>Case</th><th>Type</th><th>Size</th><th>Uploaded</th><th>Actions</th></tr></thead>
+        <tbody id="docsBody"><tr><td colspan="6" style="color:#9ca3af;padding:24px">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <h2>Upload Document</h2>
+    <div class="form-group"><label>Case *</label><select id="m-case"><option value="">— Select Case —</option></select></div>
+    <div class="form-group"><label>Document Type *</label>
+      <select id="m-type"><option>Evidence</option><option>Petition</option><option>FIR</option><option>Court Order</option><option>Other</option></select>
+    </div>
+    <div class="form-group">
+      <label>File *</label>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div id="dropLabel">Click to select or drag & drop file</div>
+      </div>
+      <input type="file" id="fileInput" style="display:none" onchange="onFileSelect(this)">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="uploadBtn" onclick="uploadDoc()">Upload</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="_sidebar.js"></script>
+<script>
+let allDocs = [];
+
+function onFileSelect(input) {
+  if (input.files[0]) document.getElementById('dropLabel').textContent = input.files[0].name;
+}
+
+function docRowHTML(d) {
+  return `<tr>
+    <td style="font-weight:600;color:#0f172a;display:flex;align-items:center;gap:10px">
+      <div style="width:34px;height:34px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#6b7280">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>${d.name}
+    </td>
+    <td style="color:#9ca3af">${d.case?.case_number||'—'}</td>
+    <td><span style="background:#f1f5f9;border:1px solid #e5e7eb;padding:3px 10px;border-radius:6px;font-size:12px;color:#374151;font-weight:500">${d.doc_type}</span></td>
+    <td style="color:#9ca3af">${d.file_size||'—'}</td>
+    <td style="color:#9ca3af">${formatDate(d.created_at)}</td>
+    <td>
+      <div style="display:flex;gap:6px">
+        <a href="${d.file_url}" target="_blank" style="padding:5px 10px;border:1.5px solid #e5e7eb;border-radius:6px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;color:#374151">View</a>
+        <a href="${d.file_url}" download style="padding:5px 10px;border:1.5px solid #e5e7eb;border-radius:6px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;color:#374151">↓</a>
+        <button onclick="deleteDoc('${d.id}')" style="padding:5px 8px;border:1.5px solid #fecaca;border-radius:6px;background:#fef2f2;font-size:12px;cursor:pointer;color:#dc2626">✕</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function filterDocs() {
+  const q  = document.getElementById('searchInput').value.toLowerCase();
+  const tp = document.getElementById('typeFilter').value;
+  let list = allDocs;
+  if (q)  list = list.filter(d=>d.name.toLowerCase().includes(q));
+  if (tp) list = list.filter(d=>d.doc_type===tp);
+  const body = document.getElementById('docsBody');
+  body.innerHTML = list.length ? list.map(docRowHTML).join('') : '<tr><td colspan="6" style="color:#9ca3af;padding:24px">No documents found.</td></tr>';
+}
+
+async function loadDocs() {
+  document.getElementById('topbarName').textContent = Auth.getUser().full_name;
+  try {
+    const [docsRes, casesRes] = await Promise.all([API.getDocs(), API.getCases()]);
+    allDocs = docsRes.documents;
+    filterDocs();
+    const sel = document.getElementById('m-case');
+    casesRes.cases.forEach(c => { sel.innerHTML += `<option value="${c.id}">${c.case_number} – ${c.title}</option>`; });
+  } catch(err) { console.error(err); }
+}
+
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); document.getElementById('fileInput').value=''; document.getElementById('dropLabel').textContent='Click to select or drag & drop file'; }
+function closeOnOverlay(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+async function uploadDoc() {
+  const case_id  = document.getElementById('m-case').value;
+  const doc_type = document.getElementById('m-type').value;
+  const file     = document.getElementById('fileInput').files[0];
+  if (!case_id || !file) { showToast('Case and file are required','error'); return; }
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  try {
+    const fd = new FormData();
+    fd.append('case_id', case_id);
+    fd.append('doc_type', doc_type);
+    fd.append('file', file);
+    const { document: doc } = await API.uploadDoc(fd);
+    allDocs.unshift(doc);
+    filterDocs();
+    closeModal();
+    showToast('Document uploaded! Client notified.');
+  } catch(e) { showToast(e.message,'error'); }
+  btn.disabled = false; btn.textContent = 'Upload';
+}
+
+async function deleteDoc(id) {
+  if (!confirm('Delete this document?')) return;
+  try {
+    await API.deleteDoc(id);
+    allDocs = allDocs.filter(d=>d.id!==id);
+    filterDocs();
+    showToast('Document deleted.');
+  } catch(e) { showToast(e.message,'error'); }
+}
+
+renderSidebar('documents');
+loadDocs();
+</script>
+</body>
+</html>

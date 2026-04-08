@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LawMate – Cases</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.toolbar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.toolbar input,.toolbar select{padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:'Inter',sans-serif;outline:none;background:#fff}
+.toolbar input:focus,.toolbar select:focus{border-color:var(--orange)}
+.toolbar input{width:240px}
+.cases-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.case-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;transition:box-shadow .2s}
+.case-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.07)}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal h2{font-family:'Playfair Display',serif;font-size:22px;color:#0f172a;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{padding:10px 20px;border:1.5px solid var(--border);border-radius:9px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+.btn-primary{padding:10px 20px;border:none;border-radius:9px;background:#0f172a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+</style>
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Lawyer Dashboard</span>
+    <div class="topbar-right">
+    <!--  <div class="search-bar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search...<span class="search-kbd">⌘K</span></div>
+      <button class="notif-btn"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>-->
+      <div class="user-badge"><div class="avatar"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span id="topbarName">...</span></div>
+    </div>
+  </header>
+  <div class="page-content">
+    <div class="page-header"><h1>Cases</h1><p>Manage all your active cases</p></div>
+    <div class="toolbar">
+      <input id="searchInput" placeholder="Search cases..." oninput="filterCases()">
+      <select id="statusFilter" onchange="filterCases()">
+        <option value="">All Status</option>
+        <option>filed</option><option>hearing</option><option>evidence</option><option>judgment</option><option>closed</option>
+      </select>
+      <select id="priorityFilter" onchange="filterCases()">
+        <option value="">All Priority</option>
+        <option>urgent</option><option>high</option><option>medium</option><option>low</option>
+      </select>
+      <button onclick="openModal()" class="btn-dark" style="margin-left:auto;padding:9px 18px;border-radius:9px;border:none;background:#0f172a;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px">+ New Case</button>
+    </div>
+    <div class="cases-grid" id="casesGrid"><div style="color:#9ca3af;font-size:14px;grid-column:1/-1">Loading...</div></div>
+  </div>
+</div>
+
+<!-- NEW CASE MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeOnOverlay(event)">
+  <div class="modal">
+    <h2>New Case</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Case Number *</label><input id="m-caseNum" placeholder="CIV/2024/001234"></div>
+      <div class="form-group"><label>Case Type *</label>
+        <select id="m-caseType"><option>Civil</option><option>Criminal</option><option>Family</option><option>Labour</option><option>Corporate</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Title *</label><input id="m-title" placeholder="Property Dispute - Sharma vs Sharma"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Client</label>
+        <select id="m-client"><option value="">— Select Client —</option></select>
+      </div>
+      <div class="form-group"><label>Court</label><input id="m-court" placeholder="Delhi High Court"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Filing Date</label><input type="date" id="m-filingDate"></div>
+      <div class="form-group"><label>Priority</label>
+        <select id="m-priority"><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option><option value="low">Low</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label>Description (internal)</label><textarea id="m-desc" rows="2" placeholder="Internal notes..."></textarea></div>
+    <div class="form-group"><label>Simple Explanation for Client</label><textarea id="m-descSimple" rows="2" placeholder="Write in plain English for your client..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="createCase()">Create Case</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="_sidebar.js"></script>
+<script>
+let allCases = [];
+const STAGES = ['Filed','Hearing','Evidence','Judgment','Closed'];
+
+function stepsHTML(stageStep) {
+  return STAGES.map((s,i) => {
+    const done = i < (stageStep||1);
+    const circle = done
+      ? `<div class="step-circle step-done"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`
+      : `<div class="step-circle step-pending">${i+1}</div>`;
+    const line = i < STAGES.length-1
+      ? `<div class="prog-connector ${done?'done':'grey'}" style="margin-top:14px"></div>` : '';
+    return `<div class="step-item">${circle}<div class="step-lbl ${done?'done':''}">${s}</div></div>${line}`;
+  }).join('');
+}
+
+function caseCardHTML(c) {
+  const tags = [];
+  if (c.priority==='urgent') tags.push(`<span class="tag-urgent">⚠ Urgent</span>`);
+  tags.push(`<span class="tag-stage">${c.status?.charAt(0).toUpperCase()+c.status?.slice(1)||'Filed'}</span>`);
+  return `
+    <div class="case-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+        <div><div style="font-size:12px;color:#9ca3af;margin-bottom:3px">${c.case_number}</div>
+          <div style="font-size:15px;font-weight:700;color:#0f172a">${c.title}</div></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${tags.join('')}</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;margin:16px 0 14px">${stepsHTML(c.stage_step)}</div>
+      ${c.description_simple ? `<div style="font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px">${c.description_simple}</div>` : ''}
+      <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#9ca3af;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:4px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>${c.client?.full_name||'No client'}</span>
+        <span style="display:flex;align-items:center;gap:4px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${c.court||'—'}</span>
+        ${c.next_hearing?`<span style="display:flex;align-items:center;gap:4px"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${formatDate(c.next_hearing)}</span>`:''}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button onclick="editCaseStatus('${c.id}','${c.status}')" style="flex:1;padding:8px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;color:#374151">Update Status</button>
+        <button onclick="deleteCase('${c.id}')" style="padding:8px 12px;border:1.5px solid #fecaca;border-radius:8px;background:#fef2f2;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;color:#dc2626">Delete</button>
+      </div>
+    </div>`;
+}
+
+function filterCases() {
+  const q   = document.getElementById('searchInput').value.toLowerCase();
+  const st  = document.getElementById('statusFilter').value;
+  const pr  = document.getElementById('priorityFilter').value;
+  let list  = allCases;
+  if (q)  list = list.filter(c=>c.title.toLowerCase().includes(q)||c.case_number.toLowerCase().includes(q));
+  if (st) list = list.filter(c=>c.status===st);
+  if (pr) list = list.filter(c=>c.priority===pr);
+  document.getElementById('casesGrid').innerHTML = list.length
+    ? list.map(caseCardHTML).join('')
+    : '<div style="color:#9ca3af;font-size:14px;grid-column:1/-1;padding:20px 0">No cases found.</div>';
+}
+
+async function loadCases() {
+  document.getElementById('topbarName').textContent = Auth.getUser().full_name;
+  try {
+    const [casesRes, clientsRes] = await Promise.all([API.getCases(), API.getClients()]);
+    allCases = casesRes.cases;
+    filterCases();
+    // Populate client dropdown
+    const sel = document.getElementById('m-client');
+    clientsRes.clients.filter(c=>c.is_approved).forEach(c => {
+      sel.innerHTML += `<option value="${c.id}">${c.full_name}</option>`;
+    });
+  } catch(err) { console.error(err); }
+}
+
+function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeOnOverlay(e) { if (e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+async function createCase() {
+  const body = {
+    case_number:       document.getElementById('m-caseNum').value.trim(),
+    case_type:         document.getElementById('m-caseType').value,
+    title:             document.getElementById('m-title').value.trim(),
+    client_id:         document.getElementById('m-client').value || null,
+    court:             document.getElementById('m-court').value.trim(),
+    filing_date:       document.getElementById('m-filingDate').value || null,
+    priority:          document.getElementById('m-priority').value,
+    description:       document.getElementById('m-desc').value.trim(),
+    description_simple:document.getElementById('m-descSimple').value.trim(),
+  };
+  if (!body.case_number || !body.title) { showToast('Case number and title required','error'); return; }
+  try {
+    const { case: c } = await API.createCase(body);
+    allCases.unshift(c);
+    filterCases();
+    closeModal();
+    showToast('Case created!');
+  } catch(e) { showToast(e.message,'error'); }
+}
+
+async function editCaseStatus(id, current) {
+  const statuses = ['filed','hearing','evidence','judgment','closed'];
+  const next = prompt(`Current: ${current}\nEnter new status:\n${statuses.join(', ')}`);
+  if (!next || !statuses.includes(next.toLowerCase())) return;
+  const simple = prompt('Update plain English explanation for client (leave blank to keep):');
+  const body = { status: next.toLowerCase() };
+  if (simple) body.description_simple = simple;
+  try {
+    const { case: updated } = await API.updateCase(id, body);
+    allCases = allCases.map(c=>c.id===id?{...c,...updated}:c);
+    filterCases();
+    showToast('Case updated!');
+  } catch(e) { showToast(e.message,'error'); }
+}
+
+async function deleteCase(id) {
+  if (!confirm('Delete this case and all its hearings, documents and tasks?')) return;
+  try {
+    await API.deleteCase(id);
+    allCases = allCases.filter(c=>c.id!==id);
+    filterCases();
+    showToast('Case deleted.');
+  } catch(e) { showToast(e.message,'error'); }
+}
+
+renderSidebar('cases');
+loadCases();
+</script>
+</body>
+</html>

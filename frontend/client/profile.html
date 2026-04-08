@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Portal – Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<aside class="sidebar" id="sidebar"></aside>
+<div class="main">
+  <header class="topbar">
+    <span class="topbar-title">Client Portal</span>
+    <div class="topbar-right">
+      <!-- ABOUT <div class="search-bar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Search...<span class="search-kbd">⌘K</span></div>
+      <button class="notif-btn"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-dot" id="notifDot" style="display:none"></span></button>-->
+      <div class="user-badge"><div class="u-avatar"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span id="topbarName">...</span></div>
+    </div>
+  </header>
+  <div class="page-content">
+    <div class="profile-wrapper">
+      <div class="profile-page-top">
+        <div><h1>My Profile</h1><p>Manage your personal information</p></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn-edit" id="editBtn" onclick="toggleEdit()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit
+          </button>
+          <button class="btn-save" id="saveBtn" style="display:none" onclick="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-identity">
+          <div class="p-avatar"><svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+          <div><div class="p-name" id="pName">—</div><div class="p-city" id="pCity">—</div></div>
+        </div>
+        <div class="fields-grid">
+          <div><label class="f-label">Full Name</label><input class="f-input" id="f-name" readonly></div>
+          <div><label class="f-label">Email</label><input class="f-input" id="f-email" readonly></div>
+          <div><label class="f-label">Phone</label><input class="f-input" id="f-phone" readonly></div>
+          <div><label class="f-label">City</label><input class="f-input" id="f-city" readonly></div>
+          <div class="full-w"><label class="f-label">Address</label><input class="f-input" id="f-addr" readonly></div>
+        </div>
+      </div>
+      <a href="/login.html" class="logout-link" onclick="Auth.clear()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
+      </a>
+    </div>
+  </div>
+</div>
+<script src="/js/api.js"></script>
+<script src="_sidebar.js"></script>
+<script>
+let editing = false;
+
+async function loadProfile() {
+  const user = Auth.getUser();
+  document.getElementById('topbarName').textContent = user.full_name;
+  try {
+    const { user: u } = await API.me();
+    document.getElementById('pName').textContent  = u.full_name;
+    document.getElementById('pCity').textContent  = u.city || '—';
+    document.getElementById('f-name').value  = u.full_name || '';
+    document.getElementById('f-email').value = u.email || '';
+    document.getElementById('f-phone').value = u.phone || '';
+    document.getElementById('f-city').value  = u.city || '';
+    document.getElementById('f-addr').value  = u.address || '';
+  } catch (err) { console.error(err); }
+}
+
+function toggleEdit() {
+  editing = true;
+  ['f-name','f-phone','f-city','f-addr'].forEach(id => {
+    const el = document.getElementById(id);
+    el.readOnly = false; el.style.background='#fff';
+  });
+  document.getElementById('editBtn').style.display = 'none';
+  document.getElementById('saveBtn').style.display = 'inline-flex';
+}
+
+async function saveProfile() {
+  try {
+    const body = {
+      full_name: document.getElementById('f-name').value,
+      phone:     document.getElementById('f-phone').value,
+      city:      document.getElementById('f-city').value,
+      address:   document.getElementById('f-addr').value,
+    };
+    const { user } = await API.updateProfile(body);
+    Auth.setSession(Auth.getToken(), { ...Auth.getUser(), full_name: user.full_name });
+    showToast('Profile updated!');
+    document.getElementById('pName').textContent = user.full_name;
+    document.getElementById('pCity').textContent = user.city || '—';
+    ['f-name','f-phone','f-city','f-addr'].forEach(id => {
+      const el = document.getElementById(id); el.readOnly=true; el.style.background='#fafafa';
+    });
+    document.getElementById('editBtn').style.display='inline-flex';
+    document.getElementById('saveBtn').style.display='none';
+  } catch (err) { showToast(err.message,'error'); }
+}
+
+renderSidebar('profile');
+loadProfile();
+</script>
+</body>
+</html>
