@@ -2,8 +2,8 @@
 // LawMate API Helper - included on every page
 // ============================================================
 
-// IMPORTANT: backend is running on port 5000
-const API_BASE = 'http://localhost:5000/api';
+// FIXED: was hardcoded localhost:5000, now works on any host
+const API_BASE = window.location.origin + '/api';
 
 
 // ── Token helpers ─────────────────────────────────────────────
@@ -105,25 +105,15 @@ const API = {
 
   // Auth
   login: (body) =>
-    apiFetch('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
 
   register: (body) =>
-    apiFetch('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/auth/register', { method: 'POST', body: JSON.stringify(body) }),
 
-  me: () =>
-    apiFetch('/auth/me'),
+  me: () => apiFetch('/auth/me'),
 
   updateProfile: (body) =>
-    apiFetch('/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/auth/profile', { method: 'PUT', body: JSON.stringify(body) }),
 
 
   // Cases
@@ -132,119 +122,78 @@ const API = {
   getCase: (id) => apiFetch(`/cases/${id}`),
 
   createCase: (body) =>
-    apiFetch('/cases', {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/cases', { method: 'POST', body: JSON.stringify(body) }),
 
   updateCase: (id, body) =>
-    apiFetch(`/cases/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(body)
-    }),
+    apiFetch(`/cases/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 
   deleteCase: (id) =>
-    apiFetch(`/cases/${id}`, {
-      method: 'DELETE'
-    }),
+    apiFetch(`/cases/${id}`, { method: 'DELETE' }),
 
 
   // Hearings
   getHearings: () => apiFetch('/hearings'),
 
   createHearing: (body) =>
-    apiFetch('/hearings', {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/hearings', { method: 'POST', body: JSON.stringify(body) }),
 
   updateHearing: (id, body) =>
-    apiFetch(`/hearings/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(body)
-    }),
+    apiFetch(`/hearings/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 
   deleteHearing: (id) =>
-    apiFetch(`/hearings/${id}`, {
-      method: 'DELETE'
-    }),
+    apiFetch(`/hearings/${id}`, { method: 'DELETE' }),
 
 
   // Documents
   getDocs: () => apiFetch('/documents'),
 
-  uploadDoc: (fd) =>
-    apiUpload('/documents/upload', fd),
+  uploadDoc: (fd) => apiUpload('/documents/upload', fd),
 
   deleteDoc: (id) =>
-    apiFetch(`/documents/${id}`, {
-      method: 'DELETE'
-    }),
+    apiFetch(`/documents/${id}`, { method: 'DELETE' }),
 
 
   // Clients
   getClients: () => apiFetch('/clients'),
 
   approveClient: (id) =>
-    apiFetch(`/clients/${id}/approve`, {
-      method: 'PUT'
-    }),
+    apiFetch(`/clients/${id}/approve`, { method: 'PUT' }),
 
   rejectClient: (id) =>
-    apiFetch(`/clients/${id}/reject`, {
-      method: 'PUT'
-    }),
+    apiFetch(`/clients/${id}/reject`, { method: 'PUT' }),
 
 
   // Fees
   getFees: () => apiFetch('/fees'),
 
   createFee: (body) =>
-    apiFetch('/fees', {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/fees', { method: 'POST', body: JSON.stringify(body) }),
 
   updateFee: (id, body) =>
-    apiFetch(`/fees/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(body)
-    }),
+    apiFetch(`/fees/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 
 
   // Tasks
   getTasks: () => apiFetch('/tasks'),
 
   createTask: (body) =>
-    apiFetch('/tasks', {
-      method: 'POST',
-      body: JSON.stringify(body)
-    }),
+    apiFetch('/tasks', { method: 'POST', body: JSON.stringify(body) }),
 
   updateTask: (id, body) =>
-    apiFetch(`/tasks/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(body)
-    }),
+    apiFetch(`/tasks/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 
   deleteTask: (id) =>
-    apiFetch(`/tasks/${id}`, {
-      method: 'DELETE'
-    }),
+    apiFetch(`/tasks/${id}`, { method: 'DELETE' }),
 
 
   // Notifications
   getNotifications: () => apiFetch('/notifications'),
 
   markRead: (id) =>
-    apiFetch(`/notifications/${id}/read`, {
-      method: 'PUT'
-    }),
+    apiFetch(`/notifications/${id}/read`, { method: 'PUT' }),
 
   markAllRead: () =>
-    apiFetch('/notifications/read-all', {
-      method: 'PUT'
-    })
+    apiFetch('/notifications/read-all', { method: 'PUT' })
 };
 
 
@@ -256,10 +205,8 @@ function showToast(msg, type = 'success') {
   if (!t) {
     t = document.createElement('div');
     t.id = '_toast';
-
     t.style.cssText =
       'position:fixed;bottom:24px;right:24px;z-index:9999;padding:14px 20px;border-radius:10px;font-size:14px;font-weight:600;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,0.15);transition:opacity .3s;max-width:320px;';
-
     document.body.appendChild(t);
   }
 
@@ -268,20 +215,14 @@ function showToast(msg, type = 'success') {
   t.style.opacity = '1';
 
   clearTimeout(t._timer);
-
-  t._timer = setTimeout(() => {
-    t.style.opacity = '0';
-  }, 3500);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
 }
 
 
 function formatDate(d) {
   if (!d) return '—';
-
   return new Date(d).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
+    day: '2-digit', month: 'short', year: 'numeric'
   });
 }
 
@@ -294,17 +235,10 @@ function formatMoney(n) {
 // ── Notification counter ──────────────────────────────────────
 async function loadNotifCount() {
   try {
-
     const { notifications } = await API.getNotifications();
-
     const unread = notifications.filter(n => !n.is_read).length;
-
     const dot = document.querySelector('.notif-dot');
-
-    if (dot) {
-      dot.style.display = unread > 0 ? 'block' : 'none';
-    }
-
+    if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
   } catch (err) {
     console.error('Notification error:', err);
   }

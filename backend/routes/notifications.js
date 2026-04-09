@@ -21,13 +21,15 @@ router.get('/', async (req, res) => {
   }
 });
 
-// PUT /api/notifications/:id/read
-router.put('/:id/read', async (req, res) => {
+// FIXED: /read-all MUST be above /:id/read — otherwise Express matches "read-all" as an :id value
+// PUT /api/notifications/read-all
+router.put('/read-all', async (req, res) => {
   try {
-    const { error } = await supabase.from('notifications')
+    const { error } = await supabase
+      .from('notifications')
       .update({ is_read: true })
-      .eq('id', req.params.id)
-      .eq('user_id', req.user.id);
+      .eq('user_id', req.user.id)
+      .eq('is_read', false);
     if (error) throw error;
     return res.json({ success: true });
   } catch (err) {
@@ -35,13 +37,14 @@ router.put('/:id/read', async (req, res) => {
   }
 });
 
-// PUT /api/notifications/read-all
-router.put('/read-all', async (req, res) => {
+// PUT /api/notifications/:id/read
+router.put('/:id/read', async (req, res) => {
   try {
-    const { error } = await supabase.from('notifications')
+    const { error } = await supabase
+      .from('notifications')
       .update({ is_read: true })
-      .eq('user_id', req.user.id)
-      .eq('is_read', false);
+      .eq('id', req.params.id)
+      .eq('user_id', req.user.id);
     if (error) throw error;
     return res.json({ success: true });
   } catch (err) {

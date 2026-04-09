@@ -29,11 +29,21 @@ app.use('/api/notifications', require('./routes/notifications'));
 // ── Health check ──────────────────────────────────────────────
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
-// ── SPA fallback: serve index.html for all non-API routes ─────
+// ── SPA fallback: FIXED — only serve index.html for extensionless routes ─────
+// Static files (.html, .css, .js) are already served above by express.static
+// This fallback only fires for clean URL paths like /dashboard
 app.get('*', (req, res) => {
+  if (req.path.includes('.')) {
+    return res.status(404).send('Not found');
+  }
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// ── Start ─────────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`LawMate server running on http://localhost:${PORT}`));
+// ── Start (local dev only) ────────────────────────────────────
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`LawMate server running on http://localhost:${PORT}`));
+}
+
+// REQUIRED for Vercel serverless — export the app
+module.exports = app;
