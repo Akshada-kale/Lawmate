@@ -177,3 +177,51 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .btn-save{display:none;align-items:center;gap:6px;background:var(--navy);border:none;color:#fff;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 .logout-link{display:inline-flex;align-items:center;gap:6px;background:#fef2f2;border:1.5px solid #fecaca;color:#dc2626;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;text-decoration:none;margin-top:20px;font-family:'Inter',sans-serif;transition:background .2s}
 .logout-link:hover{background:#fee2e2}
+
+/* ── HAMBURGER / MOBILE SIDEBAR ──────────────────────────────── */
+.hamburger{display:none;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--navy);padding:6px;border-radius:8px;margin-right:8px;flex-shrink:0}
+.hamburger:hover{background:var(--bg)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:49}
+.sidebar-overlay.open{display:block}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media(max-width:1024px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .cases-grid{grid-template-columns:1fr 1fr}
+  .fee-cols{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:768px){
+  :root{--sidebar-w:264px}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease;z-index:50}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .topbar{padding:0 16px}
+  .hamburger{display:flex}
+  .page-content{padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .cases-grid{grid-template-columns:1fr}
+  .fields-grid{grid-template-columns:1fr}
+  .full-w{grid-column:1/-1}
+  .fee-cols{grid-template-columns:1fr}
+  .profile-wrapper{max-width:100%}
+  .profile-page-top{flex-direction:column;gap:12px}
+  .section-card{padding:16px}
+  .hearing-row{flex-wrap:wrap;gap:12px;padding:16px}
+  .doc-right{flex-wrap:wrap}
+  .search-bar{display:none}
+  .page-header h1{font-size:24px}
+}
+
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .stat-val{font-size:22px}
+  .stat-card{padding:14px}
+  .topbar-title{font-size:15px}
+  .profile-card{padding:20px}
+  .profile-identity{flex-direction:column;align-items:flex-start;gap:12px}
+  .reminder-banner{flex-direction:column;align-items:flex-start;gap:10px;padding:14px}
+  .hearing-row{padding:14px}
+  .h-meta{gap:10px}
+  .fee-cols{grid-template-columns:1fr}
+}
