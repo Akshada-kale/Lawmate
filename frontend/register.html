@@ -45,9 +45,6 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)
 .pw-wrap input{padding-right:44px}
 .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-light);padding:4px;display:flex;align-items:center}
 
-/* LAWYER-ONLY FIELDS */
-.lawyer-field{display:none}
-
 /* TERMS */
 .terms-row{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#374151;margin-bottom:20px;cursor:pointer}
 .terms-row input[type=checkbox]{width:auto;margin-top:2px;accent-color:var(--orange);flex-shrink:0}
@@ -109,11 +106,6 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)
     <h1>Create Account</h1>
     <p class="sub">Join LawMate to get started</p>
 
-    <div class="toggle-row">
-      <button class="toggle-btn active" id="clientBtn" onclick="setRole('client')">Client</button>
-      <button class="toggle-btn" id="lawyerBtn" onclick="setRole('lawyer')">Lawyer</button>
-    </div>
-
     <div class="error-msg" id="errorMsg"></div>
     <div class="success-msg" id="successMsg"></div>
 
@@ -133,17 +125,7 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)
       <input type="email" id="email" placeholder="you@example.com">
     </div>
 
-    <!-- Lawyer-only fields -->
-    <div class="field lawyer-field" id="barField">
-      <label for="bar_reg_id">Bar Registration ID</label>
-      <input type="text" id="bar_reg_id" placeholder="DL/1234/2010">
-    </div>
-    <div class="field lawyer-field" id="firmField">
-      <label for="firm_name">Firm Name</label>
-      <input type="text" id="firm_name" placeholder="Singh &amp; Associates">
-    </div>
-
-    <!-- Client-only fields -->
+    <!-- Client fields -->
     <div class="field" id="cityField">
       <label for="city">City</label>
       <input type="text" id="city" placeholder="New Delhi">
@@ -186,21 +168,6 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)
 
 <script src="/js/api.js"></script>
 <script>
-let currentRole = 'client';
-
-function setRole(r) {
-  currentRole = r;
-  document.getElementById('clientBtn').classList.toggle('active', r === 'client');
-  document.getElementById('lawyerBtn').classList.toggle('active', r === 'lawyer');
-  // Show / hide conditional fields
-  document.getElementById('barField').style.display  = r === 'lawyer' ? 'block' : 'none';
-  document.getElementById('firmField').style.display = r === 'lawyer' ? 'block' : 'none';
-  document.getElementById('cityField').style.display = r === 'client' ? 'block' : 'none';
-  // Clear messages
-  document.getElementById('errorMsg').style.display   = 'none';
-  document.getElementById('successMsg').style.display = 'none';
-}
-
 function togglePw(id) {
   const el = document.getElementById(id);
   el.type = el.type === 'password' ? 'text' : 'password';
@@ -243,14 +210,8 @@ async function doRegister() {
   if (password !== confirm_password) { showError('Passwords do not match.'); return; }
   if (!terms)                  { showError('Please accept the Terms of Service.'); return; }
 
-  const body = { full_name, phone, email, password, role: currentRole };
-
-  if (currentRole === 'lawyer') {
-    body.bar_reg_id = document.getElementById('bar_reg_id').value.trim();
-    body.firm_name  = document.getElementById('firm_name').value.trim();
-  } else {
-    body.city = document.getElementById('city').value.trim();
-  }
+  const city = document.getElementById('city').value.trim();
+  const body = { full_name, phone, email, password, role: 'client', city };
 
   setLoading(true);
   try {
@@ -258,7 +219,7 @@ async function doRegister() {
     Auth.setSession(data.token, data.user);
     showSuccess('Account created successfully! Redirecting...');
     setTimeout(() => {
-      window.location.href = data.user.role === 'lawyer' ? '/lawyer/dashboard.html' : '/client/dashboard.html';
+      window.location.href = '/client/dashboard.html';
     }, 1200);
   } catch (err) {
     showError(err.message || 'Registration failed. Please try again.');
