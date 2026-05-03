@@ -177,3 +177,44 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);displ
 .btn-save{display:none;align-items:center;gap:6px;background:var(--navy);border:none;color:#fff;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 .logout-link{display:inline-flex;align-items:center;gap:6px;background:#fef2f2;border:1.5px solid #fecaca;color:#dc2626;padding:9px 18px;border-radius:9px;font-size:14px;font-weight:600;text-decoration:none;margin-top:20px;font-family:'Inter',sans-serif;transition:background .2s}
 .logout-link:hover{background:#fee2e2}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .cases-grid { grid-template-columns: 1fr; }
+  .profile-content { flex-direction: column; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+
+  .topbar { padding: 0 16px; }
+  .mobile-menu-btn { display: flex; align-items: center; justify-content: center; background: none; border: none; font-size: 24px; color: var(--navy); cursor: pointer; margin-right: 16px; }
+
+  .page-content { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr; }
+
+  .fee-cols { grid-template-columns: 1fr; }
+  .fields-grid { grid-template-columns: 1fr; }
+
+  .profile-identity { flex-direction: column; align-items: flex-start; gap: 12px; }
+
+  /* Tables */
+  .data-table-wrap { overflow-x: auto; }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-btn { display: none; }
+}
+
+/* Close button for sidebar on mobile */
+.mobile-close-btn { display: none; background: none; border: none; color: #fff; cursor: pointer; position: absolute; right: 20px; top: 50%; transform: translateY(-50%); }
+@media (max-width: 768px) {
+  .mobile-close-btn { display: block; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { z-index: 999; }
+}

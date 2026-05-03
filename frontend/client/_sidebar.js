@@ -31,5 +31,36 @@ function renderSidebar(activePage) {
       <div><div class="footer-name">${user.full_name}</div><div class="footer-role">Client</div></div>
     </div>`;
 
+
+    const sidebarBrand = document.querySelector('.sidebar-brand');
+    if (sidebarBrand && !document.querySelector('.mobile-close-btn')) {
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'mobile-close-btn';
+      closeBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      closeBtn.onclick = (e) => {
+        e.preventDefault();
+        document.getElementById('sidebar').classList.remove('open');
+      };
+      sidebarBrand.style.position = 'relative';
+      sidebarBrand.appendChild(closeBtn);
+    }
+
   loadNotifCount();
 }
+
+
+
+
+  // Add mobile menu toggle
+  document.addEventListener('DOMContentLoaded', () => {
+    const topbar = document.querySelector('.topbar');
+    if (topbar && !document.querySelector('.mobile-menu-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'mobile-menu-btn';
+      btn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+      btn.onclick = () => {
+        document.getElementById('sidebar').classList.toggle('open');
+      };
+      topbar.insertBefore(btn, topbar.firstChild);
+    }
+  });
