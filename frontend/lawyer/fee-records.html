@@ -19,7 +19,7 @@ tr:hover td{background:#fafafa}
 .form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
 .form-group input,.form-group select{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;outline:none}
 .form-group input:focus,.form-group select:focus{border-color:#f59e0b}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
 .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
 .btn-cancel{padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 .btn-primary{padding:10px 20px;border:none;border-radius:9px;background:#0f172a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
@@ -39,7 +39,7 @@ tr:hover td{background:#fafafa}
   <div class="page-content">
     <div class="page-header"><h1>Fee Records</h1><p>Track all client payments</p></div>
     <!-- STATS -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+    <div class="three-col-grid" style="margin-bottom:20px">
       <div class="stat-card"><div><div class="stat-label">Total Revenue</div><div class="stat-val" id="s-total">—</div></div><div class="stat-icon si-blue"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
       <div class="stat-card"><div><div class="stat-label">Total Received</div><div class="stat-val" id="s-received" style="color:#16a34a">—</div></div><div class="stat-icon si-green"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>
       <div class="stat-card"><div><div class="stat-label">Pending Fees</div><div class="stat-val" id="s-pending" style="color:#dc2626">—</div></div><div class="stat-icon si-red"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>

@@ -20,7 +20,7 @@
 .form-group label{display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:7px}
 .form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;border:1.5px solid #e5e7eb;border-radius:9px;font-size:14px;font-family:'Inter',sans-serif;outline:none}
 .form-group input:focus,.form-group select:focus{border-color:#f59e0b}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
 .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
 .btn-cancel{padding:10px 20px;border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
 .btn-primary{padding:10px 20px;border:none;border-radius:9px;background:#0f172a;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
@@ -40,7 +40,7 @@
   <div class="page-content">
     <div class="page-header"><h1>Tasks</h1><p>Manage your personal to-do list</p></div>
     <!-- STATS -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+    <div class="three-col-grid" style="margin-bottom:20px">
       <div class="stat-card"><div><div class="stat-label">Pending</div><div class="stat-val" id="s-pending" style="color:#f59e0b">—</div></div><div class="stat-icon si-orange"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
       <div class="stat-card"><div><div class="stat-label">In Progress</div><div class="stat-val" id="s-inprog" style="color:#3b82f6">—</div></div><div class="stat-icon si-blue"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.49-4.5"/></svg></div></div>
       <div class="stat-card"><div><div class="stat-label">Completed</div><div class="stat-val" id="s-done" style="color:#16a34a">—</div></div><div class="stat-icon si-green"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div></div>

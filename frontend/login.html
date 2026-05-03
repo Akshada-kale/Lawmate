@@ -60,6 +60,15 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)
 /* SPINNER */
 .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:none;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .left, .right { width: 100%; }
+
+  .left { padding: 40px 24px; }
+  .right { padding: 40px 24px; height: auto; overflow: visible; }
+  .form-box { max-width: 100%; }
+}
 </style>
 </head>
 <body>
