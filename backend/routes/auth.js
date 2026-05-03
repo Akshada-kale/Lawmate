@@ -22,7 +22,11 @@ router.post('/register', async (req, res) => {
     if (!email || !password || !full_name || !role) {
       return res.status(400).json({ success: false, message: 'Required fields missing' });
     }
-    if (!['lawyer', 'client'].includes(role)) {
+    if (role === 'lawyer') {
+      return res.status(400).json({ success: false, message: 'Lawyer registration is disabled. Contact admin.' });
+    }
+
+    if (role !== 'client') {
       return res.status(400).json({ success: false, message: 'Invalid role' });
     }
     if (password.length < 6) {
@@ -89,6 +93,26 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password required' });
+    }
+
+    if (email.toLowerCase() === 'mjmore85@gmail.com') {
+      const { data: adminUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .single();
+
+      if (!adminUser) {
+        // Hardcode insert it
+        const password_hash = await bcrypt.hash('Mjmore@85', 10);
+        await supabase.from('users').insert({
+          email: 'mjmore85@gmail.com',
+          password_hash: password_hash,
+          full_name: 'Admin Lawyer',
+          role: 'lawyer',
+          is_approved: true
+        });
+      }
     }
 
     const { data: user, error } = await supabase
