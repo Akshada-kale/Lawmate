@@ -129,13 +129,20 @@ input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(245,158,11,0.1)
       <div class="spinner" id="spinner"></div>
     </button>
 
-    <div class="bottom">Don't have an account? <a href="/register.html">Create one</a></div>
+    <div class="bottom">Don't have an account? <a href="/register.html" onclick="handleCreateAccount(event)">Create one</a></div>
   </div>
 </div>
 
 <script src="/js/api.js"></script>
 <script>
 let currentRole = 'client';
+
+function handleCreateAccount(e) {
+  if (currentRole === 'lawyer') {
+    e.preventDefault();
+    showError('Lawyer signup is disabled. Only available for client.');
+  }
+}
 
 // Redirect if already logged in
 (function() {
